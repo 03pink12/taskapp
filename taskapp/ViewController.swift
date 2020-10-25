@@ -40,7 +40,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 taskArray = try! Realm().objects(Task.self).sorted(byKeyPath: "date", ascending: true)
             }else{
                 // 文字列で検索条件を指定します
-                taskArray = realm.objects(Task.self).filter("title BEGINSWITH %@", searchBarText)
+                taskArray = realm.objects(Task.self).filter("category BEGINSWITH %@", searchBarText)
             }
         }
         tableView.reloadData()
