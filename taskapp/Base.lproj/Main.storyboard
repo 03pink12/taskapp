@@ -63,7 +63,7 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
-                            <searchBar contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="up0-pQ-gLv">
+                            <searchBar contentMode="redraw" placeholder="カテゴリで絞り込み" translatesAutoresizingMaskIntoConstraints="NO" id="up0-pQ-gLv">
                                 <rect key="frame" x="0.0" y="88" width="375" height="56"/>
                                 <textInputTraits key="textInputTraits"/>
                             </searchBar>
