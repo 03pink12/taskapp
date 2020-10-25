@@ -10,9 +10,10 @@ import UIKit
 import RealmSwift
 import UserNotifications
 
-class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
 
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var searchBar: UISearchBar!
     
     // Realmインスタンスを取得する
     let realm = try! Realm()
@@ -28,7 +29,24 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         tableView.delegate = self
         tableView.dataSource = self
+        searchBar.delegate = self
     }
+    
+    // searchBarによる検索
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        //view.endEditing(true)
+        if let searchBarText = searchBar.text {
+            if searchBarText == "" {
+                taskArray = try! Realm().objects(Task.self).sorted(byKeyPath: "date", ascending: true)
+            }else{
+                // 文字列で検索条件を指定します
+                taskArray = realm.objects(Task.self).filter("title BEGINSWITH %@", searchBarText)
+            }
+        }
+        tableView.reloadData()
+    }
+    
+    
     
     // 入力画面から戻ってきた時に TableView を更新させる
     override func viewWillAppear(_ animated: Bool) {
@@ -50,7 +68,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             if allTasks.count != 0 {
                 task.id = allTasks.max(ofProperty: "id")! + 1
             }
-            
             inputViewController.task = task
         }
     }
@@ -64,17 +81,18 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     // 各セルの内容を返すメソッド
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // 再利用可能な cell を得る
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
-        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)as! CustomTableViewCell
+                
         //Cellに値を設定する
         let task = taskArray[indexPath.row]
-        cell.textLabel?.text = task.title
+        cell.cellTitle?.text = task.title
+        cell.cellCategory?.text = task.category
         
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm"
         
         let dateString:String = formatter.string(from: task.date)
-        cell.detailTextLabel?.text = dateString
+        cell.cellTime?.text = dateString
 
         return cell
     }

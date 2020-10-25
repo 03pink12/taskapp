@@ -10,17 +10,24 @@ import UIKit
 import RealmSwift
 import UserNotifications
 
-class InputViewController: UIViewController {
+class InputViewController: UIViewController,UIPickerViewDelegate, UIPickerViewDataSource {
 
     @IBOutlet weak var titleTextField: UITextField!
     @IBOutlet weak var contentsTextView: UITextView!
+    @IBOutlet weak var categoryPicker: UIPickerView!
     @IBOutlet weak var datePicker: UIDatePicker!
     
     let realm = try! Realm()
     var task: Task!
     
+    var categoryList = ["インボックス", "仕事", "趣味"]
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // pickerViewDelegate設定
+        categoryPicker.delegate = self
+        categoryPicker.dataSource = self
 
         // 背景をタップしたらdismissKeyboardメソッドを呼ぶように設定する
         let tapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target:self, action:#selector(dismissKeyboard))
@@ -28,6 +35,12 @@ class InputViewController: UIViewController {
 
         titleTextField.text = task.title
         contentsTextView.text = task.contents
+        if let firstIndex = categoryList.firstIndex(of: task.category) {
+            categoryPicker.selectRow(firstIndex, inComponent: 0, animated: false)
+        }else{
+            
+        }
+        
         datePicker.date = task.date
     }
     
@@ -35,11 +48,26 @@ class InputViewController: UIViewController {
         try! realm.write {
             self.task.title = self.titleTextField.text!
             self.task.contents = self.contentsTextView.text
+            self.task.category = categoryList[self.categoryPicker.selectedRow(inComponent: 0)]
             self.task.date = self.datePicker.date
             self.realm.add(self.task, update: .modified)
         }
         setNotification(task: task)
         super.viewWillDisappear(animated)
+    }
+    
+    
+    // UIPickerViewの列の数
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    // UIPickerViewの行数、要素の全数
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return categoryList.count
+    }
+    // UIPickerViewの最初の表示
+    func pickerView(_ pickerView: UIPickerView,titleForRow row: Int,forComponent component: Int) -> String? {
+        return categoryList[row]
     }
     
     // タスクのローカル通知を登録する
